@@ -77,47 +77,33 @@
             flex-direction: column;
         }
 
-        /* ---- Terminal ---- */
-        .terminal {
-            padding: 16px 0 16px;
+        /* ---- Terminal bar (full-width, matches /live) ---- */
+        .terminal-bar {
+            position: relative;
+            z-index: 2;
+            background: var(--bg-elevated);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 24px;
             font-family: var(--font-code);
             font-size: 11px;
             color: var(--text-tertiary);
-            line-height: 1.6;
-            user-select: none;
-        }
-
-        .terminal-line {
-            opacity: 0;
-            animation: termFadeIn 0.4s ease forwards;
-            white-space: nowrap;
+            line-height: 1.5;
             overflow: hidden;
+            max-height: 80px;
         }
 
-        .terminal-line::before {
+        .terminal-bar .ln {
+            white-space: nowrap;
+        }
+
+        .terminal-bar .ln::before {
             content: '>';
             margin-right: 8px;
-            color: var(--text-tertiary);
         }
 
-        .terminal-line.active {
+        .terminal-bar .ln.on {
             color: var(--accent);
         }
-
-        .terminal-line.active::before {
-            color: var(--accent);
-        }
-
-        @keyframes termFadeIn {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .terminal-line:nth-child(1) { animation-delay: 0.2s; }
-        .terminal-line:nth-child(2) { animation-delay: 0.6s; }
-        .terminal-line:nth-child(3) { animation-delay: 1.0s; }
-        .terminal-line:nth-child(4) { animation-delay: 1.4s; }
-        .terminal-line:nth-child(5) { animation-delay: 1.8s; }
 
         /* ---- Live banner ---- */
         .live-banner {
@@ -371,16 +357,15 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Terminal bar (full-width, cycles like /live) -->
+    <div class="terminal-bar" id="term">
+        <div class="ln">Scanning #marketing for viral talking-head reels...</div>
+        <div class="ln">Found 12 reels (original audio, 1000+ likes, 15-90s)</div>
+        <div class="ln">Transcribing GR-4821 via Whisper API... viral score: 87</div>
+        <div class="ln on">Rewriting script for @Nextgen brand voice...</div>
+    </div>
 
-        <!-- Terminal -->
-        <section class="terminal" aria-hidden="true">
-            <div class="terminal-line">scanning #marketing for viral reels...</div>
-            <div class="terminal-line">found 12 talking-head reels (original audio)</div>
-            <div class="terminal-line">transcribing GR-4821... viral score: 87</div>
-            <div class="terminal-line">rewriting script for brand voice...</div>
-            <div class="terminal-line active">generating avatar video → publishing to instagram</div>
-        </section>
+    <div class="container">
 
         <!-- Live banner -->
         <a class="live-banner" href="/live">
@@ -439,59 +424,49 @@
                 <a href="/privacy">Privacy</a>
                 <a href="/cdn-cgi/l/email-protection#87e5f5eee6e9c7f4e2f3f2f7e4ebe6f0a9f3e2e4ef">Contact</a>
             </div>
-            <p class="footer-copy">© 2026 GhostReel · SetupClaw.Tech</p>
+            <p class="footer-copy">© 2026 GhostReel · New Empire AI</p>
         </footer>
 
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-        // Terminal line cycling — after initial animation, cycle through new lines
-        const lines = [
-            'scanning #digitalmarketing for viral reels...',
-            'found 8 talking-head reels (original audio)',
-            'transcribing GR-4838... viral score: 91',
-            'adapting script → brand voice applied',
-            'generating avatar video via HeyGen API...',
-            'compositing overlays with Remotion...',
-            'publishing to Instagram Reels ✓',
-            'scanning #contentcreator for viral reels...',
-            'found 15 talking-head reels (original audio)',
-            'transcribing GR-4839... viral score: 78',
-            'filtering: uses_original_audio = true',
-            'GR-4840 archived — music only, no speech',
-            'rewriting script for brand voice...',
-            'polling HeyGen... status: rendering',
-            'polling HeyGen... status: complete ✓',
-            'rendering 1080x1920 vertical composition...',
-            'safe zones applied: 150px top, 170px bottom',
-            'overnight scout report posted to #ghostreel-scout',
-            'scanning #agencylife for viral reels...',
-            'found 6 talking-head reels (original audio)',
-            'transcribing GR-4841... viral score: 83',
+    <script>
+        // Terminal cycling — matches /live page style
+        const tl = [
+            'Scanning #contentmarketing for viral reels...',
+            'Found 11 reels · filtering uses_original_audio...',
+            'Transcribing GR-4838 via Whisper API... 47s',
+            'Viral score: 91 · hook: "The agency model is dead..."',
+            'Writing to ClickUp → Viral Reels → analyzed',
+            'Creator triggered: GR-4821 → promoted',
+            'Reading brand-voice.md for Nextgen...',
+            'Script rewrite complete → Slack for review',
+            'Customer approved → avatar generating...',
+            'Generating avatar video → stock-male',
+            'Avatar engine... processing (2m 14s)',
+            'Avatar engine... complete ✓',
+            'Downloading MP4 → compositing overlays',
+            'Rendering 1080x1920 · captions + overlays',
+            'GR-4821-final.mp4 → Slack for approval',
+            'Approved → Metricool → Instagram Reels',
+            'Published ✓ → GR-4821 complete',
+            'Ad-hoc: reel URL in #hawk-inbox',
+            'GR-4839 → Score: 74 → ClickUp posted',
+            'Scanning #agencylife for viral reels...',
+            'Found 6 talking-head reels (original audio)',
+            'Transcribing GR-4841... viral score: 83',
         ];
-
-        const terminal = document.querySelector('.terminal');
-        let lineIndex = 0;
-
-        function cycleLine() {
-            const children = terminal.querySelectorAll('.terminal-line');
-
-            // Remove active class from all
-            children.forEach(c => c.classList.remove('active'));
-
-            // Shift lines up — remove first, add new at bottom
-            if (children.length >= 5) {
-                children[0].remove();
-            }
-
-            const newLine = document.createElement('div');
-            newLine.className = 'terminal-line active';
-            newLine.textContent = lines[lineIndex % lines.length];
-            newLine.style.opacity = '0';
-            newLine.style.animation = 'termFadeIn 0.4s ease forwards';
-            terminal.appendChild(newLine);
-
-            lineIndex++;
-        }
-
-        // Start cycling 
+        const term = document.getElementById('term');
+        let ti = 0;
+        setInterval(() => {
+            const ls = term.querySelectorAll('.ln');
+            ls.forEach(l => l.classList.remove('on'));
+            if (ls.length >= 4) ls[0].remove();
+            const n = document.createElement('div');
+            n.className = 'ln on';
+            n.textContent = tl[ti % tl.length];
+            term.appendChild(n);
+            ti++;
+        }, 3200);
+    </script>
+</body>
+</html>
