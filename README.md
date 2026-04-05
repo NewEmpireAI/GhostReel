@@ -91,9 +91,9 @@ Each customer gets a dedicated DigitalOcean Droplet with their own agents, their
 
 ### Built by SetupClaw.Tech
 
-GhostReel is built by [Brian MacDonald](https://setupclaw.tech), creator of the SetupClaw AIOS — a 6-agent AI workforce deployed on OpenClaw for small-to-midsize businesses.
+GhostReel is built by [Brian MacDonald](https://github.com/brianxmacdonald), creator of the SetupClaw AIOS — a 6-agent AI workforce deployed on OpenClaw for small-to-midsize businesses.
 
-**[Get GhostReel →](https://ghostreel.pro)**
+**[Get GhostReel →](https://www.ghostreel.pro)**
 
 ---
 
