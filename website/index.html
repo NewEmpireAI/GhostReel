@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GhostReel — Ghost Ride Your Content</title>
+
+    <meta name="description" content="GhostReel discovers viral scripts, rewrites them for your brand, and generates AI avatar videos — all while you sleep. Autonomous content at scale.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ghostreel.pro">
+    <meta property="og:title" content="GhostReel — Ghost Ride Your Content">
+    <meta property="og:description" content="AI that discovers viral scripts, creates avatar videos, and publishes — autonomously.">
+    <meta property="og:site_name" content="GhostReel">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="GhostReel — Ghost Ride Your Content">
+    <meta name="twitter:description" content="AI that discovers viral scripts, creates avatar videos, and publishes — autonomously.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #000000;
+            --bg-elevated: #0a0a0a;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --text-tertiary: #555555;
+            --accent: #00ff88;
+            --accent-dim: rgba(0, 255, 136, 0.15);
+            --accent-glow: rgba(0, 255, 136, 0.3);
+            --border: #1a1a1a;
+            --code-bg: #0d0d0d;
+            --font-body: 'Inter', -apple-system, sans-serif;
+            --font-code: 'Fira Code', monospace;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ---- Ambient background grain ---- */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 24px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ---- Terminal ---- */
+        .terminal {
+            padding: 16px 0 16px;
+            font-family: var(--font-code);
+            font-size: 11px;
+            color: var(--text-tertiary);
+            line-height: 1.6;
+            user-select: none;
+        }
+
+        .terminal-line {
+            opacity: 0;
+            animation: termFadeIn 0.4s ease forwards;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .terminal-line::before {
+            content: '>';
+            margin-right: 8px;
+            color: var(--text-tertiary);
+        }
+
+        .terminal-line.active {
+            color: var(--accent);
+        }
+
+        .terminal-line.active::before {
+            color: var(--accent);
+        }
+
+        @keyframes termFadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .terminal-line:nth-child(1) { animation-delay: 0.2s; }
+        .terminal-line:nth-child(2) { animation-delay: 0.6s; }
+        .terminal-line:nth-child(3) { animation-delay: 1.0s; }
+        .terminal-line:nth-child(4) { animation-delay: 1.4s; }
+        .terminal-line:nth-child(5) { animation-delay: 1.8s; }
+
+        /* ---- Live banner ---- */
+        .live-banner {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            width: fit-content;
+            margin: 0 auto 40px;
+            align-self: center;
+        }
+
+        .live-banner:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+            background: var(--accent-dim);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.85); }
+        }
+
+        .live-arrow {
+            color: var(--text-tertiary);
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .live-banner:hover .live-arrow {
+            transform: translateX(3px);
+            color: var(--accent);
+        }
+
+        /* ---- Hero ---- */
+        .hero {
+            flex: 1;
+        }
+
+        .hero-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: clamp(48px, 10vw, 72px);
+            font-weight: 900;
+            letter-spacing: -2px;
+            line-height: 1;
+            background: linear-gradient(180deg, #ffffff 40%, #666666 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .signin-link {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-tertiary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .signin-link:hover {
+            color: var(--text-primary);
+        }
+
+        .tagline {
+            font-size: clamp(18px, 4vw, 24px);
+            font-weight: 400;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            letter-spacing: -0.3px;
+        }
+
+        .tagline em {
+            font-style: normal;
+            color: var(--accent);
+        }
+
+        .description {
+            font-size: 15px;
+            line-height: 1.7;
+            color: var(--text-tertiary);
+            max-width: 520px;
+            margin-bottom: 40px;
+        }
+
+        /* ---- Pipeline visual ---- */
+        .pipeline {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin-bottom: 48px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .pipeline-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            min-width: 100px;
+            opacity: 0;
+            animation: stepIn 0.5s ease forwards;
+        }
+
+        .pipeline-step:nth-child(1) { animation-delay: 2.4s; }
+        .pipeline-step:nth-child(3) { animation-delay: 2.8s; }
+        .pipeline-step:nth-child(5) { animation-delay: 3.2s; }
+
+        .pipeline-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .pipeline-step:hover .pipeline-icon {
+            border-color: var(--accent);
+        }
+
+        .pipeline-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-tertiary);
+        }
+
+        .pipeline-arrow {
+            color: var(--text-tertiary);
+            font-family: var(--font-code);
+            font-size: 14px;
+            padding: 0 8px;
+            opacity: 0;
+            animation: stepIn 0.3s ease forwards;
+        }
+
+        .pipeline-arrow:nth-child(2) { animation-delay: 2.6s; }
+        .pipeline-arrow:nth-child(4) { animation-delay: 3.0s; }
+
+        @keyframes stepIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ---- CTA ---- */
+        .cta {
+            margin-bottom: 16px;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 32px;
+            font-family: var(--font-body);
+            font-size: 15px;
+            font-weight: 600;
+            color: #000000;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            letter-spacing: -0.2px;
+        }
+
+        .btn-primary:hover {
+            background: #00e67a;
+            box-shadow: 0 0 24px var(--accent-glow), 0 4px 12px rgba(0,0,0,0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .cta-sub {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            margin-top: 12px;
+        }
+
+        /* ---- Footer ---- */
+        footer {
+            padding: 48px 0 32px;
+            border-top: 1px solid var(--border);
+            margin-top: auto;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .footer-copy {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 16px;
+            opacity: 0.6;
+        }
+
+        /* ---- Responsive ---- */
+        @media (max-width: 480px) {
+            .container { padding: 0 16px; }
+            .terminal { padding-top: 12px; font-size: 10px; }
+            .pipeline-step { min-width: 72px; }
+            .pipeline-icon { width: 36px; height: 36px; font-size: 16px; }
+            .pipeline-label { font-size: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- Terminal -->
+        <section class="terminal" aria-hidden="true">
+            <div class="terminal-line">scanning #marketing for viral reels...</div>
+            <div class="terminal-line">found 12 talking-head reels (original audio)</div>
+            <div class="terminal-line">transcribing GR-4821... viral score: 87</div>
+            <div class="terminal-line">rewriting script for brand voice...</div>
+            <div class="terminal-line active">generating avatar video → publishing to instagram</div>
+        </section>
+
+        <!-- Live banner -->
+        <a class="live-banner" href="/live">
+            <span class="live-dot"></span>
+            <span>Watch GhostReel work live</span>
+            <span class="live-arrow">→</span>
+        </a>
+
+        <!-- Hero -->
+        <section class="hero">
+            <div class="hero-header">
+                <h1>GhostReel</h1>
+                <a class="signin-link" href="/login">Sign in</a>
+            </div>
+
+            <p class="tagline"><em>Ghost ride your content.</em> It just keeps going.</p>
+
+            <p class="description">
+                GhostReel discovers viral spoken-word scripts on Instagram every night, 
+                rewrites them for your brand voice, generates AI avatar videos, 
+                and publishes — all while you sleep. 
+                Two autonomous agents. Zero cameras. Infinite content.
+            </p>
+
+            <!-- Pipeline visualization -->
+            <div class="pipeline">
+                <div class="pipeline-step">
+                    <div class="pipeline-icon">👻</div>
+                    <span class="pipeline-label">Scout</span>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-step">
+                    <div class="pipeline-icon">✍️</div>
+                    <span class="pipeline-label">Rewrite</span>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-step">
+                    <div class="pipeline-icon">🎬</div>
+                    <span class="pipeline-label">Publish</span>
+                </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="cta">
+                <a class="btn-primary" href="/start">Get Started</a>
+                <p class="cta-sub">Managed hosting from $500/mo · No cameras required</p>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <div class="footer-links">
+                <a href="/about">About</a>
+                <a href="/live">Live Demo</a>
+                <a href="/terms">Terms</a>
+                <a href="/privacy">Privacy</a>
+                <a href="/cdn-cgi/l/email-protection#87e5f5eee6e9c7f4e2f3f2f7e4ebe6f0a9f3e2e4ef">Contact</a>
+            </div>
+            <p class="footer-copy">© 2026 GhostReel · SetupClaw.Tech</p>
+        </footer>
+
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        // Terminal line cycling — after initial animation, cycle through new lines
+        const lines = [
+            'scanning #digitalmarketing for viral reels...',
+            'found 8 talking-head reels (original audio)',
+            'transcribing GR-4838... viral score: 91',
+            'adapting script → brand voice applied',
+            'generating avatar video via HeyGen API...',
+            'compositing overlays with Remotion...',
+            'publishing to Instagram Reels ✓',
+            'scanning #contentcreator for viral reels...',
+            'found 15 talking-head reels (original audio)',
+            'transcribing GR-4839... viral score: 78',
+            'filtering: uses_original_audio = true',
+            'GR-4840 archived — music only, no speech',
+            'rewriting script for brand voice...',
+            'polling HeyGen... status: rendering',
+            'polling HeyGen... status: complete ✓',
+            'rendering 1080x1920 vertical composition...',
+            'safe zones applied: 150px top, 170px bottom',
+            'overnight scout report posted to #ghostreel-scout',
+            'scanning #agencylife for viral reels...',
+            'found 6 talking-head reels (original audio)',
+            'transcribing GR-4841... viral score: 83',
+        ];
+
+        const terminal = document.querySelector('.terminal');
+        let lineIndex = 0;
+
+        function cycleLine() {
+            const children = terminal.querySelectorAll('.terminal-line');
+
+            // Remove active class from all
+            children.forEach(c => c.classList.remove('active'));
+
+            // Shift lines up — remove first, add new at bottom
+            if (children.length >= 5) {
+                children[0].remove();
+            }
+
+            const newLine = document.createElement('div');
+            newLine.className = 'terminal-line active';
+            newLine.textContent = lines[lineIndex % lines.length];
+            newLine.style.opacity = '0';
+            newLine.style.animation = 'termFadeIn 0.4s ease forwards';
+            terminal.appendChild(newLine);
+
+            lineIndex++;
+        }
+
+        // Start cycling 

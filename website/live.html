@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GhostReel Live — Watch AI Create Content in Real Time</title>
+    <meta name="description" content="Watch GhostReel's AI agents discover viral scripts, generate avatar videos, and publish to Instagram — live.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --bg:#000;--bg2:#0a0a0a;--bg3:#0d0d0d;
+            --t1:#fff;--t2:#999;--t3:#555;
+            --green:#00ff88;--green-d:rgba(0,255,136,.12);--green-g:rgba(0,255,136,.25);
+            --orange:#ff8a00;--orange-d:rgba(255,138,0,.12);--orange-b:rgba(255,138,0,.3);
+            --purple:#8a8aff;--purple-d:rgba(138,138,255,.15);
+            --border:#1a1a1a;--f:'Inter',sans-serif;--fc:'Fira Code',monospace;
+        }
+        html{font-size:13px;-webkit-font-smoothing:antialiased}
+        body{background:var(--bg);color:var(--t1);font-family:var(--f);min-height:100vh;overflow-x:hidden}
+        body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
+
+        /* Terminal */
+        .term{position:relative;z-index:2;background:var(--bg2);border-bottom:1px solid var(--border);padding:8px 20px;font-family:var(--fc);font-size:11px;color:var(--t3);line-height:1.5;overflow:hidden;max-height:72px}
+        .term .ln{white-space:nowrap}.term .ln::before{content:'>';margin-right:8px}.term .ln.on{color:var(--green)}
+
+        /* Header */
+        .hdr{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border)}
+        .hdr-l{display:flex;align-items:center;gap:12px}
+        .hdr h1{font-size:20px;font-weight:800;letter-spacing:-.5px}
+        .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border:1px solid var(--border);border-radius:100px;font-size:10px;font-weight:600;letter-spacing:.5px;color:var(--t2)}
+        .badge .dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:p 2s ease-in-out infinite;box-shadow:0 0 6px var(--green-g)}
+        @keyframes p{0%,100%{opacity:1}50%{opacity:.4}}
+        .hdr-r a{font-size:12px;font-weight:600;color:var(--bg);background:var(--t1);padding:7px 18px;border-radius:6px;text-decoration:none;transition:opacity .2s}
+        .hdr-r a:hover{opacity:.85}
+
+        /* Dashboard */
+        .dash{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);min-height:calc(100vh - 120px)}
+        .col{background:var(--bg);padding:16px;display:flex;flex-direction:column;gap:20px}
+
+        /* Panel */
+        .ph{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+        .pt{font-size:12px;font-weight:700;letter-spacing:.3px}
+        .pc{font-size:10px;color:var(--t3)}
+
+        /* Ghost */
+        .ghost-row{display:flex;gap:14px;align-items:flex-start}
+        .ghost-art{font-family:var(--fc);font-size:12px;line-height:1.2;color:rgba(255,255,255,.85);white-space:pre;flex-shrink:0}
+        .ghost-info{flex:1}
+        .ghost-name{font-size:14px;font-weight:700;margin-bottom:3px}
+        .ghost-msg{font-size:11px;color:var(--t3);line-height:1.5}
+
+        /* Activity */
+        .ai{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03);gap:8px}
+        .ai:last-child{border-bottom:none}
+        .ai-i{font-size:13px;flex-shrink:0;margin-top:1px}
+        .ai-c{flex:1;min-width:0}
+        .ai-t{font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .ai-s{font-size:10px;color:var(--t3);margin-top:2px}
+        .ai-tm{font-size:10px;color:var(--t3);flex-shrink:0;white-space:nowrap}
+
+        /* Task cards */
+        .tc{background:var(--bg3);border:1px solid var(--orange-b);border-radius:6px;padding:10px 12px;margin-bottom:6px}
+        .tc-t{font-size:12px;font-weight:600;margin-bottom:4px;line-height:1.4}
+        .tc-g{font-size:10px;color:var(--t3);margin-bottom:6px}
+        .tc-m{display:flex;align-items:center;gap:6px}
+        .tb{font-size:9px;font-weight:600;padding:2px 7px;border-radius:3px;letter-spacing:.3px}
+        .tb.s{background:var(--green-d);color:var(--green)}.tb.c{background:var(--orange-d);color:var(--orange)}
+        .tt{font-size:10px;color:var(--t3);font-family:var(--fc)}
+        .more{font-size:10px;color:var(--green);margin-top:8px}
+
+        /* Video grid */
+        .vg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+        .vt{width:100%;aspect-ratio:9/16;border-radius:6px;overflow:hidden;border:1px solid var(--border);position:relative;cursor:pointer;transition:border-color .2s}
+        .vt:hover{border-color:var(--green)}
+        .vt img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.85)}
+        .vt:hover img{filter:brightness(1)}
+        .vt .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);opacity:0;transition:opacity .2s;font-size:20px;color:#fff}
+        .vt:hover .play{opacity:1}
+        .vg-id{font-size:10px;font-weight:600;color:var(--t2);margin-top:4px}
+        .vg-st{display:inline-block;font-size:8px;font-weight:600;padding:1px 5px;border-radius:3px;margin-top:2px}
+        .vg-st.pub{background:var(--green-d);color:var(--green)}
+        .vg-st.ren{background:var(--orange-d);color:var(--orange)}
+        .vg-st.rev{background:var(--purple-d);color:var(--purple)}
+
+        /* Insta */
+        .ig{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+        .ig:last-child{border-bottom:none}
+        .ig-t{font-size:11px;color:var(--t2);line-height:1.5}
+        .ig-m{display:flex;justify-content:space-between;margin-top:4px}
+        .ig-c{font-size:10px;color:var(--green);font-weight:500}
+        .ig-tm{font-size:10px;color:var(--t3)}
+
+        /* Script preview */
+        .sp{font-family:var(--fc);font-size:10px;color:var(--t2);line-height:1.7;padding:10px;background:var(--bg3);border-radius:6px;border:1px solid var(--border)}
+        .sp .hook{color:var(--green)}.sp .body{color:var(--orange)}.sp .cta{color:var(--purple)}
+
+        /* Stats */
+        .stats{display:flex;gap:8px}
+        .stat{flex:1;padding:10px;background:var(--bg3);border-radius:6px;border:1px solid var(--border);text-align:center}
+        .stat-n{font-size:20px;font-weight:800}
+        .stat-l{font-size:9px;color:var(--t3);margin-top:2px}
+
+        @media(max-width:1024px){.dash{grid-template-columns:1fr 1fr}.col:nth-child(3){grid-column:span 2}}
+        @media(max-width:640px){.dash{grid-template-columns:1fr}.col:nth-child(3){grid-column:span 1}}
+
+        /* Chat bubble */
+        .chat-btn{position:fixed;bottom:24px;right:24px;z-index:100;width:56px;height:56px;border-radius:50%;background:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.5),0 0 0 3px rgba(255,255,255,.1);transition:transform .2s,box-shadow .2s}
+        .chat-btn:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(0,0,0,.6),0 0 0 4px rgba(255,255,255,.15)}
+        .chat-btn svg{width:24px;height:24px}
+        .chat-btn .notif{position:absolute;top:-2px;right:-2px;width:18px;height:18px;background:var(--green);border-radius:50%;border:2px solid #000;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#000}
+
+        /* Modal overlay */
+        .modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}
+        .modal-overlay.open{display:flex}
+        .modal{background:#fff;color:#000;border-radius:12px;padding:32px;max-width:400px;width:100%;position:relative;animation:modalIn .25s ease}
+        @keyframes modalIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+        .modal-close{position:absolute;top:12px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:#999;transition:color .2s;line-height:1}
+        .modal-close:hover{color:#000}
+        .modal h2{font-size:22px;font-weight:800;margin-bottom:6px;letter-spacing:-.3px}
+        .modal p{font-size:14px;color:#666;margin-bottom:20px}
+        .modal input{display:block;width:100%;padding:12px 14px;font-family:var(--f);font-size:14px;border:1px solid #ddd;border-radius:8px;margin-bottom:12px;outline:none;transition:border-color .2s}
+        .modal input:focus{border-color:#000}
+        .modal input::placeholder{color:#bbb}
+        .modal button.modal-submit{display:block;width:100%;padding:14px;font-family:var(--f);font-size:15px;font-weight:600;color:#fff;background:#000;border:none;border-radius:8px;cursor:pointer;transition:opacity .2s}
+        .modal button.modal-submit:hover{opacity:.85}
+
+        /* Bottom bar (mobile) */
+        .bottom-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:90;padding:12px 16px;background:var(--bg);border-top:1px solid var(--border)}
+        .bottom-bar a{display:block;width:100%;padding:14px;font-family:var(--f);font-size:14px;font-weight:600;color:#fff;background:#222;border:1px solid var(--border);border-radius:8px;text-align:center;text-decoration:none;transition:background .2s}
+        .bottom-bar a:hover{background:#333}
+        @media(max-width:640px){.bottom-bar{display:block}body{padding-bottom:72px}}
+    </style>
+</head>
+<body>
+
+<div class="term" id="term">
+    <div class="ln">Scanning #marketing for viral talking-head reels...</div>
+    <div class="ln">Found 9 reels (original audio, 1000+ likes, 15-90s)</div>
+    <div class="ln">Transcribing GR-4821 via Whisper API... viral score: 87</div>
+    <div class="ln on">Rewriting script for @Nextgen brand voice...</div>
+</div>
+
+<div class="hdr">
+    <div class="hdr-l">
+        <h1>GhostReel</h1>
+        <span class="badge"><span class="dot"></span>LIVE</span>
+    </div>
+    <div class="hdr-r"><a href="/">Get GhostReel</a></div>
+</div>
+
+<div class="dash">
+
+<!-- COL 1 -->
+<div class="col">
+    <div>
+        <div class="ph"><span class="pt">GhostReel</span></div>
+        <div class="ghost-row">
+            <pre class="ghost-art" id="g-art">┌─────────┐
+│  ◎   ◎  │ 👀
+│    ▽    │
+│  ╌╌╌╌╌  │
+└────┬────┘
+    ╱ ╲</pre>
+            <div class="ghost-info">
+                <div class="ghost-name" id="g-name">Scouting</div>
+                <div class="ghost-msg" id="g-msg">Scanning 5 hashtags for viral talking-head reels with original audio and 1,000+ engagement.</div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="ph"><span class="pt">Research</span><span class="pc">Scout · 2:00 AM PT</span></div>
+        <div class="ai"><span class="ai-i">🔍</span><div class="ai-c"><div class="ai-t">#marketing — 12 reels, 8 with speech</div><div class="ai-s">uses_original_audio · 1000+ likes</div></div><span class="ai-tm">2m ago</span></div>
+        <div class="ai"><span class="ai-i">🔍</span><div class="ai-c"><div class="ai-t">#digitalmarketing — 9 reels, 6 with speech</div><div class="ai-s">3 archived (music-only)</div></div><span class="ai-tm">4m ago</span></div>
+        <div class="ai"><span class="ai-i">🔍</span><div class="ai-c"><div class="ai-t">#agencylife — 7 reels, 5 with speech</div><div class="ai-s">Top: GR-4838 · Score: 91</div></div><span class="ai-tm">6m ago</span></div>
+        <div class="ai"><span class="ai-i">📝</span><div class="ai-c"><div class="ai-t">Overnight Scout Report posted</div><div class="ai-s">5 scripts → #ghostreel-scout</div></div><span class="ai-tm">8m ago</span></div>
+    </div>
+    <div>
+        <div class="ph"><span class="pt">Active Clients</span><span class="pc">7 instances</span></div>
+        <div class="ai"><span class="ai-i">👻</span><div class="ai-c"><div class="ai-t">Nextgen</div><div class="ai-s">3 videos published this week</div></div><span class="ai-tm">1m</span></div>
+        <div class="ai"><span class="ai-i">👻</span><div class="ai-c"><div class="ai-t">FunnelForge</div><div class="ai-s">Script in review · GR-4815</div></div><span class="ai-tm">12m</span></div>
+        <div class="ai"><span class="ai-i">👻</span><div class="ai-c"><div class="ai-t">RevenueStack</div><div class="ai-s">Avatar rendering · GR-4831</div></div><span class="ai-tm">18m</span></div>
+        <div class="ai"><span class="ai-i">👻</span><div class="ai-c"><div class="ai-t">ScaleOps.io</div><div class="ai-s">2AM scout running</div></div><span class="ai-tm">22m</span></div>
+        <div class="ai"><span class="ai-i">💤</span><div class="ai-c"><div class="ai-t">GrowthLab</div><div class="ai-s">Next scout: 2:00 AM PT</div></div><span class="ai-tm">idle</span></div>
+    </div>
+    <div>
+        <div class="ph"><span class="pt">Viral Scripts</span><span class="pc">discovered today</span></div>
+        <div class="ai"><span class="ai-i">🔥</span><div class="ai-c"><div class="ai-t">"Stop running ads until you fix this one thing..."</div><div class="ai-s">GR-4821 · Score: 87 · 42K · #marketing</div></div><span class="ai-tm">2m</span></div>
+        <div class="ai"><span class="ai-i">🔥</span><div class="ai-c"><div class="ai-t">"The agency model is dead. Here's what replaces it..."</div><div class="ai-s">GR-4822 · Score: 78 · 28K · #agencylife</div></div><span class="ai-tm">4m</span></div>
+        <div class="ai"><span class="ai-i">🔥</span><div class="ai-c"><div class="ai-t">"I made $14K in 30 days with this exact funnel..."</div><div class="ai-s">GR-4823 · Score: 72 · 19K · #digitalmarketing</div></div><span class="ai-tm">6m</span></div>
+        <div class="ai"><span class="ai-i">🔥</span><div class="ai-c"><div class="ai-t">"Your clients don't need more leads. They need this..."</div><div class="ai-s">GR-4824 · Score: 68 · 15K · #saas</div></div><span class="ai-tm">8m</span></div>
+        <div class="ai"><span class="ai-i">📋</span><div class="ai-c"><div class="ai-t">"We replaced our content team with one tool..."</div><div class="ai-s">GR-4825 · Score: 65 · 11K · #contentcreator</div></div><span class="ai-tm">10m</span></div>
+        <div class="more">+ 23 scripts discovered in the past 24h</div>
+    </div>
+</div>
+
+<!-- COL 2 -->
+<div class="col">
+    <div>
+        <div class="ph"><span class="pt">Tasks</span><span class="pc">pipeline activity</span></div>
+        <div class="tc"><div class="tc-t">Rewrite script for Nextgen brand voice</div><div class="tc-g">GR-4821 · "Stop running ads until you fix this..."</div><div class="tc-m"><span class="tb c">Creator</span><span class="tt">Running for 0m 32s</span></div></div>
+        <div class="tc"><div class="tc-t">Generate avatar video — stock male</div><div class="tc-g">GR-4818 · FunnelForge · 1080x1920</div><div class="tc-m"><span class="tb c">Creator</span><span class="tt">Running for 4m 15s</span></div></div>
+        <div class="tc"><div class="tc-t">Transcribe + score 8 reels from #marketing</div><div class="tc-g">Batch · Whisper API · 6 of 8 complete</div><div class="tc-m"><span class="tb s">Scout</span><span class="tt">Running for 1m 48s</span></div></div>
+        <div class="tc"><div class="tc-t">Composite overlays + captions</div><div class="tc-g">GR-4816 · RevenueStack · 30fps render</div><div class="tc-m"><span class="tb c">Creator</span><span class="tt">Running for 2m 05s</span></div></div>
+        <div class="more">+ 47 tasks completed in the past 24h</div>
+    </div>
+    <div>
+        <div class="ph"><span class="pt">Ghost Reels</span><span class="pc">avatar videos</span></div>
+        <div class="vg">
+            <div class="vc"><div class="vt"><img src="thumb1.png" alt="GR-4819"><div class="play">▶</div></div><div class="vg-id">GR-4819</div><span class="vg-st pub">Published</span></div>
+            <div class="vc"><div class="vt"><img src="thumb2.png" alt="GR-4816"><div class="play">▶</div></div><div class="vg-id">GR-4816</div><span class="vg-st pub">Published</span></div>
+            <div class="vc"><div class="vt"><img src="thumb3.png" alt="GR-4812"><div class="play">▶</div></div><div class="vg-id">GR-4812</div><span class="vg-st pub">Published</span></div>
+            <div class="vc"><div class="vt"><img src="thumb4.png" alt="GR-4831"><div class="play">▶</div></div><div class="vg-id">GR-4831</div><span class="vg-st ren">Rendering</span></div>
+            <div class="vc"><div class="vt"><img src="thumb5.png" alt="GR-4809"><div class="play">▶</div></div><div class="vg-id">GR-4809</div><span class="vg-st rev">In Review</span></div>
+            <div class="vc"><div class="vt"><img src="thumb1.png" alt="GR-4807"><div class="play">▶</div></div><div class="vg-id">GR-4807</div><span class="vg-st pub">Published</span></div>
+        </div>
+        <div class="more" style="margin-top:10px">+ 18 videos created in the past 24h</div>
+    </div>
+</div>
+
+<!-- COL 3 -->
+<div class="col">
+    <div>
+        <div class="ph"><span class="pt">Instagram</span><span class="pc">published reels</span></div>
+        <div class="ig"><div class="ig-t">"You're spending $3K/month on ads and wondering why leads don't convert. Here's the one thing I fixed..."</div><div class="ig-m"><span class="ig-c">@Nextgen</span><span class="ig-tm">3m ago</span></div></div>
+        <div class="ig"><div class="ig-t">"Every agency owner I know made this mistake in Q1. The ones who fixed it doubled revenue by Q3..."</div><div class="ig-m"><span class="ig-c">@FunnelForge</span><span class="ig-tm">1h ago</span></div></div>
+        <div class="ig"><div class="ig-t">"I replaced my entire content team with an AI pipeline. Here's exactly how it works..."</div><div class="ig-m"><span class="ig-c">@RevenueStack</span><span class="ig-tm">3h ago</span></div></div>
+        <div class="ig"><div class="ig-t">"Stop chasing vanity metrics. The only number that matters for your SaaS is this one..."</div><div class="ig-m"><span class="ig-c">@ScaleOps.io</span><span class="ig-tm">5h ago</span></div></div>
+        <div class="ig"><div class="ig-t">"Your funnel isn't broken. Your offer is. Here's how I restructured and added $22K MRR..."</div><div class="ig-m"><span class="ig-c">@GrowthLab</span><span class="ig-tm">8h ago</span></div></div>
+        <div class="more">+ 31 reels published in the past 24h</div>
+    </div>
+    <div>
+        <div class="ph"><span class="pt">Script Preview</span><span class="pc">GR-4821 · Score: 87</span></div>
+        <div class="sp">
+            <span class="hook">[HOOK]</span> "Stop running ads until you fix this one thing..."<br><br>
+            <span class="body">[BODY]</span> "I spent $47K on Meta ads last quarter. The first $30K was completely wasted. Not because the ads were bad — they were great. The problem was my landing page loaded in 6 seconds and my offer was buried below the fold..."<br><br>
+            <span class="cta">[CTA]</span> "Drop 'AUDIT' in the comments and I'll send you my exact checklist."
+        </div>
+        <div style="margin-top:6px;font-size:10px;color:var(--t3)">Source: 42K views · 47s · #marketing</div>
+    </div>
+    <div>
+        <div class="ph"><span class="pt">Pipeline</span><span class="pc">last 24h</span></div>
+        <div class="stats">
+            <div class="stat"><div class="stat-n" style="color:var(--green)">23</div><div class="stat-l">Scripts Found</div></div>
+            <div class="stat"><div class="stat-n" style="color:var(--orange)">18</div><div class="stat-l">Videos Made</div></div>
+            <div class="stat"><div class="stat-n" style="color:var(--purple)">31</div><div class="stat-l">Published</div></div>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Chat Bubble -->
+<button class="chat-btn" id="chatBtn" onclick="document.getElementById('chatModal').classList.add('open')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <span class="notif">1</span>
+</button>
+
+<!-- Bottom Bar (mobile) -->
+<div class="bottom-bar">
+    <a href="#" onclick="event.preventDefault();document.getElementById('chatModal').classList.add('open')">Ask GhostReel Anything →</a>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="chatModal">
+    <div class="modal">
+        <button class="modal-close" onclick="document.getElementById('chatModal').classList.remove('open')">×</button>
+        <h2>Ask GhostReel Anything</h2>
+        <p>Enter your name and email to join the live chat.</p>
+        <input type="text" placeholder="Your name" id="chatName">
+        <input type="email" placeholder="Your email" id="chatEmail">
+        <button class="modal-submit" onclick="handleChat()">Start chatting →</button>
+    </div>
+</div>
+
+<script>
+function handleChat(){
+    const n=document.getElementById('chatName').value.trim();
+    const e=document.getElementById('chatEmail').value.trim();
+    if(!n||!e){alert('Please enter your name and email.');return}
+    // TODO: Send to backend / email list
+    document.getElementById('chatModal').classList.remove('open');
+    alert('Thanks '+n+'! We\'ll be in touch at '+e);
+}
+// Close modal on overlay click
+document.getElementById('chatModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open')});
+// Close modal on Escape
+document.addEventListener('keydown',function(e){if(e.key==='Escape')document.getElementById('chatModal').classList.remove('open')});
+</script>
+
+<script>
+const tl=['Scanning #contentmarketing for viral reels...','Found 11 reels · filtering uses_original_audio...','Transcribing GR-4838 via Whisper API... 47s','Viral score: 91 · hook: "The agency model is dead..."','Writing to ClickUp → Viral Reels → analyzed','Creator triggered: GR-4821 → promoted','Reading brand-voice.md for Nextgen...','Script rewrite complete → Slack for review','Customer approved → avatar generating...','Generating avatar video → stock-male','Avatar engine... processing (2m 14s)','Avatar engine... complete ✓','Downloading MP4 → compositing overlays','Rendering 1080x1920 · captions + overlays','GR-4821-final.mp4 → Slack for approval','Approved → Metricool → Instagram Reels','Published ✓ → GR-4821 complete','Ad-hoc: reel URL in #hawk-inbox','GR-4839 → Score: 74 → ClickUp posted','Scanning #agencylife for viral reels...'];
+const term=document.getElementById('term');let ti=0;
+setInterval(()=>{const ls=term.querySelectorAll('.ln');ls.forEach(l=>l.classList.remove('on'));if(ls.length>=4)ls[0].remove();const n=document.createElement('div');n.className='ln on';n.textContent=tl[ti%tl.length];term.appendChild(n);ti++},3200);
+
+const gs=[
+{name:'Scouting',msg:'Scanning 5 hashtags for viral talking-head reels with original audio and 1,000+ engagement.',
+art:`┌─────────┐\n│  ◎   ◎  │ 👀\n│    ▽    │\n│  ╌╌╌╌╌  │\n└────┬────┘\n    ╱ ╲`},
+{name:'Transcribing',msg:'Whisper API processing 8 reels. Filtering music-only. Writing transcripts to ClickUp.',
+art:`┌─────────┐\n│  ⊙   ⊙  │ 🎧\n│    ○    │\n│  ~~~~~  │\n└────┬────┘\n    ╱ ╲`},
+{name:'Creating',msg:'Rewriting GR-4821 for brand voice. Generating avatar video.',
+art:`┌─────────┐\n│  ◉   ◉  │ 🎬\n│    ◇    │\n│  \\___/  │\n└────┬────┘\n    ╱ ╲`},
+{name:'Rendering',msg:'Compositing 1080x1920 vertical video. Captions synced. Overlays applied. Safe zones locked.',
+art:`┌─────────┐\n│  ●   ●  │ ⚡\n│    △    │\n│  ═════  │\n└────┬────┘\n    ╱ ╲`},
+{name:'Publishing',msg:'GR-4819 approved. Publishing to Instagram Reels via Metricool. Ghost ride continues.',
+art:`┌─────────┐\n│  ^   ^  │ ✨\n│    ▿    │\n│  ╲___╱  │\n└────┬────┘\n    ╱ ╲`}
+];
+let gi=0;
+setInterval(()=>{gi=(gi+1)%gs.length;document.getElementById('g-art').textContent=gs[gi].art;document.getElementById('g-name').textContent=gs[gi].name;document.getElementById('g-msg').textContent=gs[gi].msg},6000);
+
+setInterval(()=>{document.querySelectorAll('.tt').forEach(t=>{const m=t.textContent.match(/(\d+)m (\d+)s/);if(m){let min=+m[1],sec=+m[2]+1;if(sec>=60){sec=0;min++}t.textContent=`Running for ${min}m ${String(sec).padStart(2,'0')}s`}})},1000);
+</script>
+</body>
+</html>
