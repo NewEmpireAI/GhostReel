@@ -158,15 +158,16 @@
     <div>
         <div class="ph"><span class="pt">GhostReel</span></div>
         <div class="ghost-row">
-            <pre class="ghost-art" id="g-art">┌─────────┐
-│  ◎   ◎  │ 👀
-│    ▽    │
-│  ╌╌╌╌╌  │
-└────┬────┘
-    ╱ ╲</pre>
+            <pre class="ghost-art" id="g-art">   .-"""-.
+  /       \
+ | ◎     ◎ |
+ |    ▽    |
+ |  ╌╌╌╌╌  |
+ |         |
+ /\  /\  /\</pre>
             <div class="ghost-info">
                 <div class="ghost-name" id="g-name">Scouting</div>
-                <div class="ghost-msg" id="g-msg">Scanning 5 hashtags for viral talking-head reels with original audio and 1,000+ engagement.</div>
+                <div class="ghost-msg" id="g-msg">Scanning hashtags for viral talking-head reels across Instagram.</div>
             </div>
         </div>
     </div>
@@ -295,16 +296,26 @@ const term=document.getElementById('term');let ti=0;
 setInterval(()=>{const ls=term.querySelectorAll('.ln');ls.forEach(l=>l.classList.remove('on'));if(ls.length>=4)ls[0].remove();const n=document.createElement('div');n.className='ln on';n.textContent=tl[ti%tl.length];term.appendChild(n);ti++},3200);
 
 const gs=[
-{name:'Scouting',msg:'Scanning 5 hashtags for viral talking-head reels with original audio and 1,000+ engagement.',
-art:`┌─────────┐\n│  ◎   ◎  │ 👀\n│    ▽    │\n│  ╌╌╌╌╌  │\n└────┬────┘\n    ╱ ╲`},
-{name:'Transcribing',msg:'Whisper API processing 8 reels. Filtering music-only. Writing transcripts to ClickUp.',
-art:`┌─────────┐\n│  ⊙   ⊙  │ 🎧\n│    ○    │\n│  ~~~~~  │\n└────┬────┘\n    ╱ ╲`},
-{name:'Creating',msg:'Rewriting GR-4821 for brand voice. Generating avatar video.',
-art:`┌─────────┐\n│  ◉   ◉  │ 🎬\n│    ◇    │\n│  \\___/  │\n└────┬────┘\n    ╱ ╲`},
-{name:'Rendering',msg:'Compositing 1080x1920 vertical video. Captions synced. Overlays applied. Safe zones locked.',
-art:`┌─────────┐\n│  ●   ●  │ ⚡\n│    △    │\n│  ═════  │\n└────┬────┘\n    ╱ ╲`},
-{name:'Publishing',msg:'GR-4819 approved. Publishing to Instagram Reels via Metricool. Ghost ride continues.',
-art:`┌─────────┐\n│  ^   ^  │ ✨\n│    ▿    │\n│  ╲___╱  │\n└────┬────┘\n    ╱ ╲`}
+{name:'Scouting',msg:'Scanning hashtags for viral talking-head reels across Instagram.',
+art:"   .-\"\"\"-.  \n  /       \\ \n | \u25ce     \u25ce | \n |    \u25bd    | \n |  \u254c\u254c\u254c\u254c\u254c  | \n |         | \n /\\  /\\  /\\"},
+{name:'Analyzing',msg:'Transcribing and scoring reels by viral potential.',
+art:"    _____   \n  .'     '. \n / \u2299     \u2299 \\ \n |    \u25cb    | \n |  ~~~~~  | \n |         | \n )\\_/\\_/\\_/("},
+{name:'Strategizing',msg:'Studying brand voice and mapping hook structures.',
+art:"   .~~~~~. \n  /       \\ \n | \u25c9     \u25c9 | \n |    \u25c7    | \n |  \\___/  | \n |         | \n ~\\~/\\~/\\~"},
+{name:'Rewriting',msg:'Adapting top scripts for client brand voice and audience.',
+art:"    ___     \n  /`   `\\  \n / \u25cf   \u25cf \\ \n |   \u25b3    | \n |  \u2550\u2550\u2550\u2550\u2550  | \n |         | \n /~\\/~\\/~\\"},
+{name:'Conjuring',msg:'Avatar engine rendering vertical video with lip sync.',
+art:"   ,-\"\"\"-,\n  /       \\ \n | ^     ^ | \n |    \u25bf    | \n |  \\___/  | \n |         | \n )\\  /\\  /("},
+{name:'Compositing',msg:'Layering captions, overlays, and CTAs onto final video.',
+art:"   .------.\n  (        )\n | -     - | \n |    .    | \n |  .....  | \n |         | \n /\\_/\\_/\\_\\"},
+{name:'Publishing',msg:'Pushing approved reels to Instagram via Metricool.',
+art:"    _..._  \n  .'     '.\n | \u25c9     \u25c9 | \n |    \u25bd    | \n |  \\___/  | \n |         | \n ~\\/~\\/~\\/~"},
+{name:'Processing',msg:'Handling an ad-hoc reel URL dropped in Slack.',
+art:"   /~~~~~\\\n  /       \\ \n | x     x | \n |    \u25cb    | \n |  -----  | \n |         | \n /\\__/\\__/\\"},
+{name:'Recovering',msg:'Auto-retrying after an avatar engine error.',
+art:"   .*\"\"*.  \n  /       \\ \n | *     * | \n |    \u25c7    | \n |  \\___/  | \n |         | \n )\\/\\/\\/\\/("},
+{name:'Delivering',msg:'Posting finished videos to Slack for client review.',
+art:"    .oOo.  \n  /       \\ \n | \u25ce     \u25ce | \n |    .    | \n |  .....  | \n |         | \n /~\\__/~\\_\\"},
 ];
 let gi=0;
 setInterval(()=>{gi=(gi+1)%gs.length;document.getElementById('g-art').textContent=gs[gi].art;document.getElementById('g-name').textContent=gs[gi].name;document.getElementById('g-msg').textContent=gs[gi].msg},6000);
