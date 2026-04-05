@@ -1,4 +1,3 @@
-```markdown
 # GhostReel — Autonomous AI Content Factory
 
 An autonomous 2-agent system that discovers viral spoken-word scripts on Instagram,
@@ -9,7 +8,7 @@ Instagram Reels — all while you sleep.
 
 ## Architecture
 
-\```
+```
 ┌──────────────────────────────────────────────────────────────┐
 │                        Customer                              │
 │                  Slack + ClickUp (phone)                     │
@@ -30,7 +29,7 @@ Instagram Reels — all while you sleep.
                                        │  Instagram  │
                                        │  Reels      │
                                        └─────────────┘
-\```
+```
 
 ### The 2 Agents
 
@@ -67,12 +66,12 @@ Every interaction references a **GR ID** — one universal identifier across all
 
 ### Pipeline
 
-\```
+```
 Instagram → Scout → ClickUp → Creator → Avatar Engine → Overlays → Instagram Reels
                       ↑                                              ↓
                    Customer                                      Published
                 (Slack + ClickUp)
-\```
+```
 
 ### Stack
 
@@ -87,8 +86,8 @@ Instagram → Scout → ClickUp → Creator → Avatar Engine → Overlays → I
 
 Each customer gets a dedicated DigitalOcean Droplet with their own agents, their own ClickUp workspace, and their own Slack channels. Fully isolated. Fully autonomous.
 
-- **$500–750/month** — managed hosting, skill maintenance, updates
-- **$1,500–2,500 one-time** — self-hosted skill package (bring your own OpenClaw)
+- **$500-750/month** — managed hosting, skill maintenance, updates
+- **$1,500-2,500 one-time** — self-hosted skill package (bring your own OpenClaw)
 
 ### Built by SetupClaw.Tech
 
@@ -99,4 +98,3 @@ GhostReel is built by [Brian MacDonald](https://setupclaw.tech), creator of the 
 ---
 
 *GhostReel v0.1.0 — April 2026*
-```
